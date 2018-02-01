@@ -5,6 +5,9 @@ from sklearn import neighbors
 from sklearn import linear_model
 import pickle
 from matplotlib.colors import ListedColormap
+from scipy.sparse import coo_matrix
+from sklearn.utils import shuffle
+import random
 
 NUM_CENTROIDS_PER_CLASS = 10
 
@@ -57,6 +60,11 @@ def perfromLC(trainData, trainLabel, testData, testLabel):
 def perform10Fold(trainData, trainLabel, numNeighbors):
 	knn = neighbors.KNeighborsClassifier(numNeighbors) # get the classifier
 	errorSum = 0
+
+	data_sparse = coo_matrix(trainData)
+	trainData, X_sparse, trainLabel = shuffle(trainData, data_sparse, trainLabel, random_state=0)
+
+
 	gap = len(trainData) / 10
 	validationError = []
 	for i in range(10):
@@ -72,12 +80,13 @@ def perform10Fold(trainData, trainLabel, numNeighbors):
 			tiny_data = np.reshape(validationData[i], [1, -1])
 			predict.append(knn.predict(tiny_data))
 
+
 		checkWrong = [1 if predict[i] != validationLabel[i] else 0 for i in range(len(validationLabel))]
 		numWrong = sum(checkWrong)
 		validationError.append(numWrong * 1.0 / gap)
 
 
-
+	print validationError
 	return np.mean(np.array(validationError)), np.std(np.array(validationError))
 
 def prepare_data(path):
@@ -87,9 +96,9 @@ def prepare_data(path):
 		f.close()
 		return data
 	else:
-
+		np.random.seed()
 		trainSampleSize = 100
-		testSampleSize = 10000
+		testSampleSize = 10
 		noiseVar = [[0.2, 0], [0, 0.2]]
 
 		centroidVar = [[1, 0], [0, 1]]
@@ -108,8 +117,8 @@ def prepare_data(path):
 		testData1 = generateSampleData(centroids1, testSampleSize, noiseVar)
 		testData2 = generateSampleData(centroids2, testSampleSize, noiseVar)
 		testData  = list(np.concatenate((testData1, testData2), axis = 0))
-		testLabel = list(np.zeros(trainSampleSize))
-		testLabel.extend(list(np.ones(trainSampleSize)))
+		testLabel = list(np.zeros(testSampleSize))
+		testLabel.extend(list(np.ones(testSampleSize)))
 
 		data = [trainData, trainLabel, testData, testLabel, centroids1, centroids2]
 
@@ -156,12 +165,19 @@ def drawDecisionBound(trainData, trainLabel, numNeighbors, centroids1, centroids
 	bayes = bayes.reshape(xx.shape)
 	plt.figure()
 	#plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
-	plt.contour(xx, yy, Z, [0.5,], color = 'r')
-	plt.contour(xx, yy, bayes, [0.5,], color = 'g')
+	plt.subplot(121)
+	plt.scatter(trainData[:, 0], trainData[:, 1], c=trainLabel, cmap=cmap_bold,
+				edgecolor='k', s=20)
+	plt.contour(xx, yy, Z, [0.8,], color = 'r')
+	plt.title('KNN Decision Boundary with K = 45')
+	print bayes
+	plt.subplot(122)
+	plt.contour(xx, yy, bayes, [0.8,], color = 'g')
 
 	# Plot also the training points
 	plt.scatter(trainData[:, 0], trainData[:, 1], c=trainLabel, cmap=cmap_bold,
 				edgecolor='k', s=20)
+	plt.title('Bayesian Decision Boundary')
 	plt.xlim(xx.min(), xx.max())
 	plt.ylim(yy.min(), yy.max())
 	plt.show()
@@ -172,7 +188,7 @@ def drawDecisionBound(trainData, trainLabel, numNeighbors, centroids1, centroids
 kValue = [1, 3, 5, 9, 15, 25, 45, 83, 151]
 degFree = [200 / kValue[i] for i in range(len(kValue))]
 
-# valueRange = range(len(kValue))
+valueRange = range(len(kValue))
 # trainError = [1 - perfromKNN(trainData, trainLabel, trainData, trainLabel, kValue[i]) for i in range(len(kValue))]
 # testError = [1 - perfromKNN(trainData, trainLabel, testData, testLabel, kValue[i]) for i in range(len(kValue))]
 #
@@ -181,7 +197,7 @@ degFree = [200 / kValue[i] for i in range(len(kValue))]
 # print testError[::-1]
 #
 #
-
+#
 # trainErrorLC = 1 - perfromLC(trainData, trainLabel, trainData, trainLabel)
 # testErrorLC = 1 - perfromLC(trainData, trainLabel, testData, testLabel)
 #
@@ -190,28 +206,44 @@ degFree = [200 / kValue[i] for i in range(len(kValue))]
 # plt.plot(degFree, testError, 'b-o')
 # plt.plot(degFree[3], trainErrorLC, 'r--s')
 # plt.plot(degFree[3], testErrorLC, 'b--s')
-#
+# plt.title('Performance of KNN and Linear Regression')
+# plt.xlabel('Degree of Freedom N/K')
+# plt.ylabel('Testing Error')
+# #
 # plt.show()
 
 #
-# validationError = []
-# validationStd = []
+validationError = []
+validationStd = []
+#print perform10Fold(trainData, trainLabel, 151)
+
 # for i in range(len(kValue)):
 # 	tmpError, tmpStd = perform10Fold(trainData, trainLabel, kValue[i])
 # 	validationError.append(tmpError)
 # 	validationStd.append(tmpStd)
 #
-#
-# plt.plot(degFree, validationError, 'r-o')
-# plt.plot(degFree, validationStd, 'b-o')
-# plt.show()
-#
 # print validationError
 # print validationStd
-
+# #
+# # plt.errorbar(degFree, validationError, validationStd, linestyle='--')
+# plt.figure(1)
+# plt.subplot(121)
+# plt.plot(degFree, validationError)
+#
+# # plt.ylim(0, 0.6)
+# plt.title('10-fold validation error')
+# plt.xlabel('Degree of Freedom N/K')
+# plt.ylabel('Validation Error')
+#
+# plt.subplot(122)
+# plt.plot(degFree, validationStd)
+# plt.title('10-fold validation STD')
+# plt.xlabel('Degree of Freedom N/K')
+# plt.ylabel('Validation STD')
+# plt.show()
 
 # print validationError
 
-drawDecisionBound(trainData, trainLabel, kValue[6], centroids1, centroids2)
+drawDecisionBound(trainData, trainLabel, kValue[7], centroids1, centroids2)
 # testError = perfromLC(trainData, trainLabel, testData, testLabel)
 # print testError
