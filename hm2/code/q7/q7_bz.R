@@ -2,7 +2,7 @@ library(MASS)
 
 train.3 = read.csv("train.3", header=F)
 train.5 = read.csv("train.5", header=F)
-train.8 = read.csv("train.5", header=F)
+train.8 = read.csv("train.8", header=F)
 
 
 # data processing
@@ -26,58 +26,65 @@ showDigit <- function(x, ...) {
 pred_errors = matrix(0, nrow=5, ncol=2)
 
 # part a
-# l = lda(xtrain, ytrain)
-# pred_errors[1,1] = sum(predict(l)$class != ytrain) / length(ytrain)
-# pred_errors[1,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
-# 
+l = lda(xtrain, ytrain)
+pred_errors[1,1] = sum(predict(l)$class != ytrain) / length(ytrain)
+pred_errors[1,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
+print(pred_errors)
+
+
 # part b
-# xtrain.center <- apply(xtrain, 2, mean)
-# xxtrain = scale(xtrain, center = xtrain.center, scale = F)
-# xxtest = scale(xtest, center = xtrain.center, scale = F)
-# V = svd(xxtrain)$v[,1:64]
-# pcstrain = xxtrain %*% V
-# pcstest = xxtest %*% V
-# 
-# l = lda(pcstrain, ytrain)
-# pred_errors[2,1] = sum(predict(l)$class != ytrain) / length(ytrain)
-# pred_errors[2,2] = sum(predict(l, pcstest)$class != ytest) / length(ytest)
-# 
-# # part c
-# V = svd(xxtrain)$v[, 1:32]
-# pcstrain = xxtrain %*% V
-# pcstest = xxtest %*% V
-# 
-# l = lda(pcstrain, ytrain)
-# pred_errors[3,1] = sum(predict(l)$class != ytrain) / length(ytrain)
-# pred_errors[3,2] = sum(predict(l, pcstest)$class != ytest) / length(ytest)
-# 
-# # part d
-# filterdigit <- function(x) {
-#   # average each non-overlapping 2x2 block
-#   x = matrix(x, 16,16)
-#   twos = rep(1:2, 8)
-#   x = x[twos == 1,] + x[twos==2,]
-#   x = x[,twos == 1] + x[,twos==2]
-#   as.vector(x)/4
-# }
-# xtrain = t(apply(xtrain, 1, filterdigit))
-# xtest = t(apply(xtest, 1, filterdigit))
-# l = lda(xtrain, ytrain)
-# pred_errors[4,1] = sum(predict(l)$class != ytrain) / length(ytrain)
-# pred_errors[4,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
-# 
+xtrain.center <- apply(xtrain, 2, mean)
+xxtrain = scale(xtrain, center = xtrain.center, scale = F)
+xxtest = scale(xtest, center = xtrain.center, scale = F)
+V = svd(xxtrain)$v[,1:30]
+pcstrain = xxtrain %*% V
+pcstest = xxtest %*% V
+
+l = lda(pcstrain, ytrain)
+pred_errors[2,1] = sum(predict(l)$class != ytrain) / length(ytrain)
+pred_errors[2,2] = sum(predict(l, pcstest)$class != ytest) / length(ytest)
+
+# part c
+V = svd(xxtrain)$v[, 1:10]
+pcstrain = xxtrain %*% V
+pcstest = xxtest %*% V
+
+l = lda(pcstrain, ytrain)
+pred_errors[3,1] = sum(predict(l)$class != ytrain) / length(ytrain)
+pred_errors[3,2] = sum(predict(l, pcstest)$class != ytest) / length(ytest)
+
+# part d
+filterdigit <- function(x) {
+  # average each non-overlapping 2x2 block
+  x = matrix(x, 16,16)
+  twos = rep(1:4, 4)
+  x = x[twos == 1,] + x[twos==2,] + x[twos == 3,] + x[twos==4,]
+  x = x[,twos == 1] + x[,twos==2] + x[,twos == 3] + x[,twos==4]
+  as.vector(x)/16
+}
+xtrain = t(apply(xtrain, 1, filterdigit))
+xtest = t(apply(xtest, 1, filterdigit))
+l = lda(xtrain, ytrain)
+pred_errors[4,1] = sum(predict(l)$class != ytrain) / length(ytrain)
+pred_errors[4,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
+
 # part e
 library(glmnet)
+print("here1")
 l = glmnet(xtrain, factor(ytrain), family = "multinomial")
+print(l)
+print("here2")
 pred_errors[5,1] = sum(as.numeric(predict(
-                        l, xtrain, s=l$lambda[99], type = "class"))
+                        l, xtrain, s=l$lambda[90], type = "class"))
                        != ytrain) / length(ytrain)
 pred_errors[5,2] = sum(as.numeric(predict(
-                        l, xtest, s = l$lambda[99], type = "class"))
+                        l, xtest, s = l$lambda[90], type = "class"))
                        != ytest) / length(ytest)
-print(pred_errors)
+# print(pred_errors)
+
 # output prediction scores
-# print(round(pred_errors, 4))
+print(round(pred_errors, 4))
+
 
 # plot of deviance explained vs. test err
 alpha.values = c(0, .25, .5, .75, 1)
