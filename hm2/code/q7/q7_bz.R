@@ -99,11 +99,11 @@ for (i in 1:length(alpha.values)) {
                     predict(l, xtest, type = "class") != ytest, 2, mean))
 }
 
-my.colors = c("gray90", "gray80", "gray70", "gray50", "gray30", "black")
-pdf("p6-plot.pdf", width=10, height=6)
+my.colors = c("red4", "red3", "red1", "orangered2", "orange2", "yellow2")
+png(filename = "p7-plot.png")
 plot(dev.explained[[i]], pred.err[[i]], type="l", col=my.colors[1],
-     lwd=2, xlab="Deviance Ratio", ylab = "Prediction Error")
-title("Prediction Error vs. Training Deviance-Explained")
+     lwd=2, xlab="% of deviance explained", ylab = "Test error")
+title("% of deviance explained vs. Test error")
 
 for (i in 2:length(alpha.values)) {
   lines(dev.explained[[i]], pred.err[[i]], col=my.colors[i], lwd=2)
@@ -113,7 +113,7 @@ alpha.legend = character(length(alpha.values))
 for (i in 1:length(alpha.values)) {
   alpha.legend[i] = paste("Alpha =", alpha.values[i])
 }
-legend(x = "topright", legend = alpha.legend, lwd = 4, col = my.colors)
+legend(x = "topright", legend = alpha.legend, lwd = 5, col = my.colors)
 dev.off()
 
 
