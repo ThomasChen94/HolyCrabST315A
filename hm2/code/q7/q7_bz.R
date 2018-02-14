@@ -86,7 +86,7 @@ print(round(pred_errors, 4))
 
 
 # plot of deviance explained vs. test err
-alpha.values = c(0, .25, .5, .75, 1)
+alpha.values = c(0, .2, .4, .6, .8, 1)
 # 
 pred.err = list()
 dev.explained = list()
