@@ -99,7 +99,7 @@ for (i in 1:length(alpha.values)) {
                     predict(l, xtest, type = "class") != ytest, 2, mean))
 }
 
-my.colors = c("red4", "red3", "red1", "orangered2", "orange2", "yellow2")
+my.colors = c("red4", "yellow1", "steelblue1", "springgreen2", "plum2", "pink1")
 png(filename = "p7-plot.png")
 plot(dev.explained[[i]], pred.err[[i]], type="l", col=my.colors[1],
      lwd=2, xlab="% of deviance explained", ylab = "Test error")
