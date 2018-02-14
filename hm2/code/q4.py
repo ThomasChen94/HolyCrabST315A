@@ -2,6 +2,8 @@ import numpy as np
 import random
 from numpy.linalg import inv
 import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
+from scipy.sparse import coo_matrix
 
 
 def computeMisclassiError(predict_class, y):
@@ -47,6 +49,8 @@ class StepWiseRegModel:
 		X = np.hstack((np.reshape(intercept, [N, -1]), X))
 		beta = np.zeros(p + 1)
 		beta[0] = np.dot(intercept, y) * 1.0 / np.dot(intercept, intercept)
+
+		self.fitted_beta.append(beta)
 
 		X_dup = X.copy() # we want to store the original X through the process
 		X_used_ind = [0]
@@ -104,15 +108,18 @@ class StepWiseRegModel:
 		if depict:
 			plt.figure(1)
 			plt.plot(range(len(RSS_list)), RSS_list)
+			plt.axvline(x=34, linestyle='--')
 			plt.xlabel('Iteration Steps')
 			plt.ylabel('RSS')
 			plt.savefig('learn_rss_%s.png'%(data_type))
+
 			plt.show()
 
 			plt.figure(2)
 			plt.plot(range(len(classification_error)), classification_error)
+			plt.axvline(x=34, linestyle='--')
 			plt.xlabel('Iteration Steps')
-			plt.ylabel('Misclassification Error on training set')
+			plt.ylabel('Misclassification Error on %s set' %(data_type))
 			plt.savefig('learn_error_%s.png'%(data_type))
 			plt.show()
 
@@ -125,6 +132,11 @@ class StepWiseRegModel:
 		[N, p] = X.shape
 		gap = N / 10
 		classification_error = np.zeros([10, p])
+
+		#X = X[np.random.permutation(X.shape[0]), :]
+		data_sparse = coo_matrix(X)
+		X, X_sparse, y = shuffle(X, data_sparse, y, random_state=0)
+
 
 		for i in xrange(10):
 			X_valid = X[gap * i : gap * (i + 1)]
@@ -174,7 +186,61 @@ class StepWiseRegModel:
 
 		print "Congrats! 10 fold cross validation finished successfully!"
 
-	def plot
+	def plotCoeffPathVSStep(self):
+		p = len(self.fitted_beta)
+		beta = np.array(self.fitted_beta)
+		beta = list(beta.T)
+		#print beta.shape
+		for i in range(p):
+			plt.plot(range(p), beta[i])
+
+		plt.show()
+
+	def plotCoeffPathVSStep(self):
+
+		p = len(self.fitted_beta)
+		beta = np.array(self.fitted_beta)
+		beta = list(beta.T)
+		#print beta.shape
+		plt.plot(range(p), beta[0], label = 'intercept')
+		for i in range(1, len(self.index_pick_order)):
+			plt.plot(range(p), beta[i], label = str(self.index_pick_order[i]))
+			if i == 10:
+				plt.legend(loc='upper right', prop={'size': 10}, framealpha = 0.5)
+
+		# for i in range(p):
+		# 	line = plt.plot(range(p), beta[i], label = str(i))
+		# 	if i in first_10_variables:
+		# 		plt.legend(handles = [])
+
+		plt.xlabel('iteration step')
+		plt.ylabel('coefficient path')
+		plt.savefig('coefficient_path_step.png')
+		plt.show()
+		
+
+
+	def plotCoeffPathVSSR2(self, RSS_list, y):
+		print len(self.fitted_beta)
+		p = len(self.fitted_beta)
+		beta = np.array(self.fitted_beta)
+		beta = list(beta.T)
+
+		SS_total = np.sum((y - np.mean(y)) ** 2)
+		R2 = list(1 - np.array(RSS_list) / SS_total)
+
+		plt.plot(R2, beta[0], label = 'intercept')
+		for i in range(1, len(self.index_pick_order)):
+			plt.plot(R2, beta[i], label = str(self.index_pick_order[i]))
+			if i == 10:
+				plt.legend(loc='upper right', prop={'size': 10}, framealpha = 0.5)
+
+
+		plt.xlabel('R^2')
+		plt.ylabel('coefficient path')
+		plt.savefig('coefficient_path_r2.png')
+		plt.show()
+		
 
 
 def loadSpamData(data_path, index_path):
@@ -184,7 +250,7 @@ def loadSpamData(data_path, index_path):
 	ind = np.loadtxt(index_path, delimiter =' ')
 	#print X[1, -3:]
 	X[:, -3:] = np.log(X[:, -3:])
-	X[:, : -3] = (X[:, : -3] == 0) * 1
+	X[:, : -3] = (X[:, : -3] != 0) * 1
 
 	ind_train = []
 	ind_test = []
@@ -223,19 +289,19 @@ if __name__ == '__main__':
 	
 	##### plot learning curve #####
 	
-	model.predictAllStepAndComputeStats(X_train, y_train, depict = True)
-	print computeMisclassiError(predict_class, y_train)
+	RSS_list, _ = model.predictAllStepAndComputeStats(X_train, y_train, depict = True)
+	#print computeMisclassiError(predict_class, y_train)
 
 
 	######  10 fold cross validation #######
 	
-	model.perform10Fold(X_train, y_train)
+	#model.perform10Fold(X_train, y_train)
 
 	######  predict on the testing set and plot the prediction curve #######
 	#model.predictAllStepAndComputeStats(X_test, y_test, depict = True, data_type = 'test')
 
-
-
+	model.plotCoeffPathVSStep()
+	model.plotCoeffPathVSSR2(RSS_list, y_train)
 
 
 
