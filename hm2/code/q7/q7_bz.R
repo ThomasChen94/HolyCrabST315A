@@ -29,8 +29,7 @@ pred_errors = matrix(0, nrow=5, ncol=2)
 l = lda(xtrain, ytrain)
 pred_errors[1,1] = sum(predict(l)$class != ytrain) / length(ytrain)
 pred_errors[1,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
-print(pred_errors)
-
+# print(pred_errors)
 
 # part b
 xtrain.center <- apply(xtrain, 2, mean)
@@ -70,10 +69,10 @@ pred_errors[4,2] = sum(predict(l, xtest)$class != ytest) / length(ytest)
 
 # part e
 library(glmnet)
-print("here1")
+#print("here1")
 l = glmnet(xtrain, factor(ytrain), family = "multinomial")
-print(l)
-print("here2")
+#print(l)
+#print("here2")
 pred_errors[5,1] = sum(as.numeric(predict(
                         l, xtrain, s=l$lambda[90], type = "class"))
                        != ytrain) / length(ytrain)
@@ -105,7 +104,7 @@ plot(dev.explained[[i]], pred.err[[i]], type="l", col=my.colors[1],
      lwd=2, xlab="% of deviance explained", ylab = "Test error")
 title("% of deviance explained vs. Test error")
 
-for (i in 2:length(alpha.values)) {
+for (i in 1:length(alpha.values)) {
   lines(dev.explained[[i]], pred.err[[i]], col=my.colors[i], lwd=2)
 }
 
