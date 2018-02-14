@@ -1,7 +1,8 @@
-train.x=as.matrix(read.csv("E:/0-courses/Stats315A/hw/2/HolyCrabST315A/hm2/code/train.x",header=F))
-train.y=as.matrix(read.csv("E:/0-courses/Stats315A/hw/2/HolyCrabST315A/hm2/code/train.y",header=F))
-test.x=as.matrix(read.csv("E:/0-courses/Stats315A/hw/2/HolyCrabST315A/hm2/code/test.x",header=F))
-test.y=as.matrix(read.csv("E:/0-courses/Stats315A/hw/2/HolyCrabST315A/hm2/code/test.y",header=F))
+xtrain=as.matrix(read.csv("train.x",header=F))
+ytrain=as.matrix(read.csv("train.y",header=F))
+xtest=as.matrix(read.csv("test.x",header=F))
+ytest=as.matrix(read.csv("test.y",header=F))
+
 library(glmnet)
 l=glmnet(xtrain,factor(ytrain),family="multinomial")
 e1=sum(as.numeric(predict(l,xtrain,s=l$lambda[99],type="class"))!=
