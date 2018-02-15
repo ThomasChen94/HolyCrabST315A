@@ -1,13 +1,37 @@
-xtrain=as.matrix(read.csv("train.x",header=F))
-ytrain=as.matrix(read.csv("train.y",header=F))
-xtest=as.matrix(read.csv("test.x",header=F))
-ytest=as.matrix(read.csv("test.y",header=F))
-
+library(MASS)
 library(glmnet)
-l=glmnet(xtrain,factor(ytrain),family="multinomial")
-e1=sum(as.numeric(predict(l,xtrain,s=l$lambda[99],type="class"))!=
-ytrain)/length(ytrain)
-e2=sum(as.numeric(predict(l,xtest,s=l$lambda[99],type="class"))!=
-ytest)/length(ytest)
-print(e1)
-print(e2)
+
+train.x=as.matrix(read.csv("train.x",header=F))
+train.y=as.matrix(read.csv("train.y",header=F))
+test.x=as.matrix(read.csv("test.x",header=F))
+test.y=as.matrix(read.csv("test.y",header=F))
+model = glmnet(train.x, factor(train.y), family = "multinomial")
+train.e = sum(as.numeric(predict(model, train.x, s = model$lambda[91], type = "class"))!=train.y)/length(train.y)
+test.e = sum(as.numeric(predict(model, test.x, s = model$lambda[91], type = "class"))!=test.y)/length(test.y)
+print(train.e)
+print(test.e)
+
+alphas = c(0, .2, .4, .6, .8, 1)
+# 
+pred.e = list()
+data.dev = list()
+for (i in 1:length(alphas)) {
+  model = glmnet(train.x, factor(train.y), family = "multinomial", alpha = alphas[i])
+  data.dev[[i]] = model$dev.ratio
+  pred.e[[i]] = as.numeric(apply(predict(model, test.x, type = "class")!=as.vector(test.y), 2, mean))
+  print(i)
+}
+
+m_colors = c("red4", "yellow1", "steelblue1", "springgreen2", "plum2", "pink1")
+png(filename = "p7-plot.png")
+plot(data.dev[[i]], pred.e[[i]], type="l", col=m_colors[1],
+     lwd=2, xlab="% of deviance explained", ylab = "Test error")
+title("% of deviance explained vs. Test error")
+for (i in 2:length(alphas)) {
+  lines(data.dev[[i]], pred.e[[i]], col=m_colors[i])
+}
+alpha_leg = character(length(alphas))
+for (i in 1:length(alphas)) {
+  alpha_leg[i] = paste("Alpha =", alphas[i])
+}
+legend(x = "topright", legend = alpha_leg, lwd = 5, col = m_colors)

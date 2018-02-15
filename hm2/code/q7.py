@@ -37,9 +37,10 @@ class Question_7():
 		test_data = np.loadtxt(test_file)
 		_train_data = self.select_data(train_data)
 		_test_data = self.select_data(test_data)
-		self._train.x = _train_data[:,1:]
+		mean = np.mean(_train_data[:,1:], axis=0)
+		self._train.x = _train_data[:,1:] - mean
 		self._train.y = _train_data[:,0]
-		self._test.x = _test_data[:,1:]
+		self._test.x = _test_data[:,1:] - mean
 		self._test.y = _test_data[:,0]
 
 	def get_error(self, true_y, predict_y):
@@ -150,5 +151,6 @@ if __name__ == '__main__':
 	model.sub_q_b()
 	model.sub_q_c()
 	model.sub_q_d()
-	model.sub_q_e()
+	# model.sub_q_e()
+	# using R code for question e
 	model.export_filtered_data()
