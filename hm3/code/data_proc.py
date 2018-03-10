@@ -43,24 +43,23 @@ def parse_data(path, train = True):
 	special_list = [3, 8, 11, 15, 18,21]
 
 	for row in range(X.shape[0]): # process special list
-		m3 = {'a':0, 'b':1}
+		m3 = {'a':-1, 'b':1}
 		if X[row,3] in m3:
 			X[row,3] = m3[X[row,3]]
 		else:
 			print 'not a or b', X[row,3]
 
-		m8 = {' 3 yrs':0, ' 5 yrs':1}
+		m8 = {' 3 yrs':-1, ' 5 yrs':1}
 		if X[row,8] in m8:
 			X[row,8] = m8[X[row,8]]
 		else:
 			print "not 3 or 5 years", X[row,8]
 
-		m11 = {'NA':-1, '< 1':0, '10+':15} ## careful for this -1! doesn't make sense mathematically
+		m11 = {'NA':-1, '< 1':1, '10+':15} ## careful for this -1! doesn't make sense mathematically
 		if X[row,11] in m11:
 			X[row,11] = m11[X[row,11]]
 		else:
 			X[row, 11] = int(X[row, 11])
-			
 
 		m15 = {'checked':0, 'partial':1, 'unchecked':2}
 		X[row,15] = m15[X[row,15]]
