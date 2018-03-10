@@ -3,8 +3,6 @@ import csv
 
 
 numFeature = 30
-path_train = '../data/loan_train.csv'
-path_test = '../data/loan_testx.csv'
 
 # process input data
 # if train, output (features (n*30), labels (n*1), name of features)
@@ -57,7 +55,7 @@ def parse_data(path, train = True):
 		else:
 			print "not 3 or 5 years", X[row,8]
 
-		m11 = {'NA':-1, '< 1':0, '10+':15}
+		m11 = {'NA':-1, '< 1':0, '10+':15} ## careful for this -1! doesn't make sense mathematically
 		if X[row,11] in m11:
 			X[row,11] = m11[X[row,11]]
 		else:
@@ -79,8 +77,11 @@ def parse_data(path, train = True):
 		X[row,21] = m21[X[row,21]]
 
 	X = X.astype(float)
-	# print X[500,:]
-	# print X.shape
+	print 'dim of features:', X.shape
+	if train:
+		y = np.reshape(y, (-1,1))
+		y = y.astype(float)
+		print 'dim of labels:', y.shape
 
 	if train:
 		return (X, y, names)
@@ -91,7 +92,4 @@ def parse_data(path, train = True):
 
 
 
-
-if __name__ == "__main__":
-	parse_data(path_test, False)
 
