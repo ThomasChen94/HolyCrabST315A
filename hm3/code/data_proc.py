@@ -55,7 +55,8 @@ def parse_data(path, train = True):
 		else:
 			print "not 3 or 5 years", X[row,8]
 
-		m11 = {'NA':-1, '< 1':1, '10+':15} ## careful for this -1! doesn't make sense mathematically
+		m11 = {'NA':0, '< 1':-1, '10+':15} ## careful for this -1! doesn't make sense mathematically
+
 		if X[row,11] in m11:
 			X[row,11] = m11[X[row,11]]
 		else:

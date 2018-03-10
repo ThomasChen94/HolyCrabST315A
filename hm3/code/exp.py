@@ -5,7 +5,9 @@ from sklearn.utils import shuffle
 from data_proc import parse_data 
 from model_lr import model_lr
 from model_lr_ridge import model_lr_ridge
+
 from model_lgr import model_lgr
+from model_svm import our_svm
 
 
 path_train = '../data/loan_train.csv'
@@ -41,7 +43,8 @@ def cross_val(data, model, *arg):
 	for i in xrange(10):
 		X_train, y_train, X_test, y_test = data[i]
 		mdl = model(X_train, y_train, X_test, y_test, *arg)
-		mdl.train()
+		train_error = mdl.train()
+		print "current training error: ", train_error
 		_, error = mdl.test()
 		test_err.append(error)
 	return np.average(test_err)
@@ -59,7 +62,11 @@ if __name__ == "__main__":
 
 	# # 2: ridge regression model
 	# for lam in [0.1, 1, 10, 100]:
-	# 	test_err = cross_val(data, model_lgr, lam)
+
+	# 	test_err = cross_val(data, model_lr_ridge, lam)
+
 	# 	print 'test err with lambda = %f is %.3f'% (lam, test_err)
 
 
+	#test_err_svm = cross_val(data, our_svm)
+	#print 'test error for svm:', test_err_svm

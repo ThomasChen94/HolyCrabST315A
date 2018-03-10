@@ -27,4 +27,4 @@ class model_lr_ridge:
 		pred[pred < 0.5] = 0
 		pred[pred >= 0.5] = 1
 		# test error = sqrt(sum of squares)
-		return np.linalg.norm(pred - self.testY)
+		return np.mean(pred != self.testY)
