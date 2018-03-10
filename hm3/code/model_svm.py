@@ -12,9 +12,7 @@ class our_svm:
 		self.testX = np.hstack((np.ones([testX.shape[0], 1]), testX))
 		self.testX = scaler.transform(self.testX)
 		self.testY = testY.flat
-		self.svc = SVC()
-		parameters = {'C':[0.1, 1, 5, 10, 100, 1000], 'max_iter':}
-		self.selected_svc = GridSearch(self.svc, parameters)
+		self.svc = SVC(C=8, gamma=0.01, probability=False, verbose=False, kernel="rbf")
 
 	def train(self):
 		self.svc.fit(self.trainX, self.trainY)
