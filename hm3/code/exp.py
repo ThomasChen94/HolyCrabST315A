@@ -5,6 +5,7 @@ from sklearn.utils import shuffle
 from data_proc import parse_data 
 from model_lr import model_lr
 from model_lr_ridge import model_lr_ridge
+from model_svm import our_svm
 
 
 path_train = '../data/loan_train.csv'
@@ -35,11 +36,11 @@ def cross_val_data(X,y):
 
 
 # perform cross validation on ridge regression model
-def cross_val(data, model, lam = None):
+def cross_val(data, model, *arg):
 	test_err = []
 	for i in xrange(10):
 		X_train, y_train, X_test, y_test = data[i]
-		mdl = model(X_train, y_train, X_test, y_test, lam)
+		mdl = model(X_train, y_train, X_test, y_test, *arg)
 		mdl.train()
 		test_err.append(mdl.test())
 	return np.average(test_err)
@@ -55,9 +56,11 @@ if __name__ == "__main__":
 	test_err1 = cross_val(data, model_lr)
 	print 'test error of lin reg model = %.3f' % test_err1
 
-	# 2: ridge regression model
-	for lam in [0.1, 1, 10, 100]:
-		test_err = cross_val(data, model_lr_ridge, lam)
-		print 'test err with lambda = %f is %.3f'% (lam, test_err)
+	# # 2: ridge regression model
+	# for lam in [0.1, 1, 10, 100]:
+	# 	test_err = cross_val(data, model_lr_ridge, lam)
+	# 	print 'test err with lambda = %f is %.3f'% (lam, test_err)
 
 
+	test_err_svm = cross_val(data, our_svm)
+	print 'test error for svm:', test_err_svm
