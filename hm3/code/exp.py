@@ -12,7 +12,7 @@ from model_svm import our_svm
 
 path_train = '../data/loan_train.csv'
 path_test = '../data/loan_testx.csv'
-
+save_path = '../data/output.csv'
 
 # prepare data for 10-fold cross validation
 # return list of tuple:
@@ -44,21 +44,29 @@ def cross_val(data, model, *arg):
 		X_train, y_train, X_test, y_test = data[i]
 		mdl = model(X_train, y_train, X_test, y_test, *arg)
 		train_error = mdl.train()
-		print "current training error: ", train_error
+		#print "current training error: ", train_error
 		_, error = mdl.test()
 		test_err.append(error)
-	return np.average(test_err)
+	return np.average(test_err), mdl.model
 
 
 if __name__ == "__main__":
 	X, y, names = parse_data(path_train, True)
-	# X = np.delete(X, 11, 1)
-	data = cross_val_data(X,y)
-	
-	#print X[1,:]
-	# 1: linear regression model
-	test_err1 = cross_val(data, model_lgr)
-	print 'test error of logistic reg model = %.3f' % test_err1
+
+	# data = cross_val_data(X,y)
+	# test_err1, model = cross_val(data, model_lgr)
+	# print 'test error of logistic reg model = %.3f' % test_err1
+
+	lgr = model_lgr(X, y, X, y)
+	lgr.train()
+	X_test, _ = parse_data(path_test, False)
+	X_test = np.hstack((np.ones([X_test.shape[0], 1]), X_test))
+	predict = lgr.model.predict(X_test)
+
+	csv = open(save_path, "w")
+	for val in predict:
+		csv.write(str(val) + "\n")
+
 
 	# # 2: ridge regression model
 	# for lam in [0.1, 1, 10, 100]:
