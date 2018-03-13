@@ -1,6 +1,7 @@
 # experiment framework
 import numpy as np
 from sklearn.utils import shuffle
+from sklearn.model_selection import ShuffleSplit
 
 from data_proc import parse_data 
 from model_lr import model_lr
@@ -8,6 +9,8 @@ from model_lr_ridge import model_lr_ridge
 
 from model_lgr import model_lgr
 from model_svm import our_svm
+import matplotlib.pyplot as plt
+
 
 
 path_train = '../data/loan_train.csv'
@@ -50,6 +53,7 @@ def cross_val(data, model, *arg):
 	return np.average(test_err), mdl.model
 
 
+
 if __name__ == "__main__":
 	X, y, names = parse_data(path_train, True)
 
@@ -59,6 +63,9 @@ if __name__ == "__main__":
 
 	lgr = model_lgr(X, y, X, y)
 	lgr.train()
+	lgr.plot_learning_curve('Learning curve of logistic regression')
+	lgr.plot_coeffi()
+
 	X_test, _ = parse_data(path_test, False)
 	X_test = np.hstack((np.ones([X_test.shape[0], 1]), X_test))
 	predict = lgr.model.predict(X_test)
