@@ -11,12 +11,12 @@ from sklearn.model_selection import learning_curve
 
 class model_lgr:
 	def __init__(self, trainX, trainY, testX, testY, lam = None):	
-		scaler = StandardScaler()
+		#scaler = StandardScaler()
 		self.trainX = np.hstack((np.ones([trainX.shape[0], 1]), trainX))	 # N*(p+1) np matrix
-		self.trainX = scaler.fit_transform(self.trainX)
+		#self.trainX = scaler.fit_transform(self.trainX)
 		self.trainY = np.reshape(trainY, [-1,])
 		self.testX = np.hstack((np.ones([testX.shape[0], 1]), testX))
-		self.testX = scaler.transform(self.testX)
+		#self.testX = scaler.transform(self.testX)
 		self.testY = np.reshape(testY, [-1,])
 		self.model = linear_model.LogisticRegression(C = 1, penalty='l2', tol=1e-4)
 

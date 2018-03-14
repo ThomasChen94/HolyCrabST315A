@@ -63,8 +63,8 @@ if __name__ == "__main__":
 
 	lgr = model_lgr(X, y, X, y)
 	lgr.train()
-	lgr.plot_learning_curve('Learning curve of logistic regression')
-	lgr.plot_coeffi()
+	#lgr.plot_learning_curve('Learning curve of logistic regression')
+	#lgr.plot_coeffi()
 
 	X_test, _ = parse_data(path_test, False)
 	X_test = np.hstack((np.ones([X_test.shape[0], 1]), X_test))
