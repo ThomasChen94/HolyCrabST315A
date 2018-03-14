@@ -68,9 +68,24 @@ if __name__ == "__main__":
 
 	X_test, _ = parse_data(path_test, False)
 	X_test = np.hstack((np.ones([X_test.shape[0], 1]), X_test))
-	predict = lgr.model.predict(X_test)
+	predict = lgr.model.predict_proba(X_test)
+
+	# calculate 90% prediction interval
+	# var = 0.0
+	# z = 1.645
+	# N = 10000
+	# for p in predict:
+	# 	var += p[0]*p[1]
+	# var /= N*N
+	# v1 = np.mean(predict)
+	# print var, N
+	# v2 = math.sqrt(var / N) * z
+	# a = v1 - v2
+	# b = v1 + v2
 
 	csv = open(save_path, "w")
+	# csv.write(str(a) + "\n")
+	# csv.write(str(b) + "\n")
 	for val in predict:
 		csv.write(str(val) + "\n")
 
