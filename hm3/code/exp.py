@@ -1,5 +1,7 @@
 # experiment framework
 import numpy as np
+import math
+import csv
 from sklearn.utils import shuffle
 from sklearn.model_selection import ShuffleSplit
 
@@ -66,28 +68,39 @@ if __name__ == "__main__":
 	#lgr.plot_learning_curve('Learning curve of logistic regression')
 	#lgr.plot_coeffi()
 
+	# predict_train = lgr.model.predict_proba(np.hstack((np.ones([X.shape[0], 1]), X)))
+	# csv_train = open("../data/output_train.csv", "w")
+	# for _, p in predict_train:
+	# 	csv_train.write(str(p) + "\n")
+
+
+	print "calculate test prediction"
 	X_test, _ = parse_data(path_test, False)
 	X_test = np.hstack((np.ones([X_test.shape[0], 1]), X_test))
 	predict = lgr.model.predict_proba(X_test)
 
-	# calculate 90% prediction interval
-	# var = 0.0
-	# z = 1.645
-	# N = 10000
-	# for p in predict:
-	# 	var += p[0]*p[1]
-	# var /= N*N
-	# v1 = np.mean(predict)
-	# print var, N
-	# v2 = math.sqrt(var / N) * z
-	# a = v1 - v2
-	# b = v1 + v2
+	print "calculate 90% prediction interval"
+	var = 0.0
+	z = 1.645
+	N = 10000
+	for p0, p1 in predict:
+		var += p0 * p1
+	var /= N*N
+	v1 = np.mean(predict[:,1])
+	print var, N
+	v2 = math.sqrt(var / N) * z
+	a = v1 - v2
+	b = v1 + v2
 
-	csv = open(save_path, "w")
-	# csv.write(str(a) + "\n")
+	print "write to csv"
+	csvfile = open(save_path, "wb")
+	writer = csv.writer(csvfile)
+	writer.writerow([str(a)] + [str(b)])
+	# csv.write(str(a))
 	# csv.write(str(b) + "\n")
-	for val in predict:
-		csv.write(str(val) + "\n")
+	for _, val in predict:
+		writer.writerow([str(val)])
+		# csv.write(str(val) + "\n")
 
 
 	# # 2: ridge regression model
